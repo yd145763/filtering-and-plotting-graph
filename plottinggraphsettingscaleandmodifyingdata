@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan  5 17:19:17 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator,
+							FormatStrFormatter,
+							AutoMinorLocator)
+
+import matplotlib.ticker as ticker
+
+OPA_16E_double_1565nm = pd.read_csv('C:\\Users\\limyu\\Google Drive\\mzi heater\\opa\\OPA_data16emittersdoublephase.csv')
+print(OPA_16E_double_1565nm.columns)
+x = OPA_16E_double_1565nm["x"]
+y1 = []
+j = 0
+x1 = range(0, 1567)
+for x2 in x1:
+    y=x[x2]
+    y = y[1:-1]
+    y = float(y)
+    y1.append(y)
+
+x2 = [i * 1000000 for i in y1]
+
+fig1 = plt.figure("Figure 1")
+ax = plt.axes()
+ax.plot(x2, OPA_16E_double_1565nm["0°"])
+
+ax.plot(x2, OPA_16E_double_1565nm["120°"])
+ax.plot(x2, OPA_16E_double_1565nm["180°"])
+ax.set_xlim([-100, 100])
+ax.xaxis.set_major_locator(ticker.LinearLocator(11))
+ax.xaxis.set_minor_locator(ticker.LinearLocator(51))
+
+plt.xticks(rotation = 90)
+plt.legend(["0°", "120°","180°"])
+plt.show()
+
