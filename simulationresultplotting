@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan  5 17:19:17 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator,
+							FormatStrFormatter,
+							AutoMinorLocator)
+
+import matplotlib.ticker as ticker
+import math
+
+OPA_4E_double_1092nm = pd.read_csv('C:\\Users\\limyu\\Google Drive\\mzi heater\\OPAsimulation\\OPA_data4 Emitters 1092 nm.csv')
+print(OPA_4E_double_1092nm.columns)
+x = OPA_4E_double_1092nm["x"]
+x2 = [i * 1000000 for i in x]
+
+
+fig1 = plt.figure("Figure 1")
+ax = plt.axes()
+graphs = ["0°", "90°", "180°", "270°", "360°"]
+for graph in graphs:
+    ax.plot(x2, OPA_4E_double_1092nm[graph])
+    i_max = OPA_4E_double_1092nm[graph].idxmax(axis = 0, skipna = True)
+    x_max = x2[i_max]
+    print("The x-position of " + graph +" phase is:")
+    print(x_max)
+    print(" ")
+    angle = math.degrees(math.atan((x_max - 4.500000000000001)/80))
+    print("The steering angle of " + graph +" phase is:")
+    print(angle)
+    print(" ")
+    
+
+ax.set_xlim([-100, 100])
+ax.xaxis.set_major_locator(ticker.LinearLocator(11))
+ax.xaxis.set_minor_locator(ticker.LinearLocator(51))
+
+plt.xticks(rotation = 90)
+plt.legend(graphs, title = "Phase Difference")
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field at 80 um Height (um)")
+plt.title("4 Emitters 1092 nm Wavelength")
+plt.show()
+
+i_max = OPA_4E_double_1092nm["0°"].idxmax(axis = 0, skipna = True)
+x_max = x2[i_max]
+
+
