@@ -1,0 +1,78 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jan 18 09:15:01 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator,
+							FormatStrFormatter,
+							AutoMinorLocator)
+
+import matplotlib.ticker as ticker
+import math
+from matplotlib.ticker import StrMethodFormatter
+
+OPA_4E_double_1092nm = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\OPAsimulation\\OPA_data8emitters.csv")
+print(OPA_4E_double_1092nm.columns)
+x = OPA_4E_double_1092nm["x"]
+x2 = [i * 1000000 for i in x]
+
+
+fig1 = plt.figure("Figure 1")
+ax = plt.axes()
+graphs = ["0°", "90°", "180°", "270°", "360°"]
+for graph in graphs:
+    ax.plot(x2, OPA_4E_double_1092nm[graph], linewidth=3 )
+    i_max = OPA_4E_double_1092nm[graph].idxmax(axis = 0, skipna = True)
+    x_max = x2[i_max]
+    print("The x-position of " + graph +" phase is:")
+    print(x_max)
+    print(" ")
+    angle = math.degrees(math.atan((x_max - 4.500000000000001)/80))
+    print("The steering angle of " + graph +" phase is:")
+    print(angle)
+    print(" ")
+    
+
+ax.set_xlim([-100, 100])
+ax.xaxis.set_major_locator(ticker.LinearLocator(11))
+ax.xaxis.set_minor_locator(ticker.LinearLocator(51))
+ax.tick_params(which='major', width=2.00)
+ax.tick_params(which='minor', width=2.00)
+
+ax.set_ylim([0, 0.015])
+ax.yaxis.set_major_locator(ticker.LinearLocator(4))
+ax.yaxis.set_minor_locator(ticker.LinearLocator(16))
+
+
+legend = ax.legend(graphs, fontsize=13, prop = {'weight':'bold'}, title="Phase Shift", title_fontproperties={'weight':'bold'}, loc="upper left")
+
+plt.xticks(rotation = 90)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.title("8 Emitters 1565 nm Wavelength")
+ax.title.set_fontsize(18)
+ax.title.set_weight("bold")
+ax.xaxis.label.set_fontsize(18)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(18)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=16)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax.spines["right"].set_visible(False)
+ax.spines["top"].set_visible(False)
+ax.spines['bottom'].set_linewidth(2)
+ax.spines['left'].set_linewidth(2)
+
+plt.show()
+
+i_max = OPA_4E_double_1092nm["0°"].idxmax(axis = 0, skipna = True)
+x_max = x2[i_max]
+
