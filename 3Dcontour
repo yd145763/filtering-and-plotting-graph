@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jan 18 09:20:50 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator,
+							FormatStrFormatter,
+							AutoMinorLocator)
+
+import matplotlib.ticker as ticker
+import math
+from matplotlib.ticker import StrMethodFormatter
+from mpl_toolkits.mplot3d import axes3d
+
+DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\3.7 V_0001.ascii.csv", header=None)
+DF=DF.dropna(axis=1)
+print(DF.head())
+print(DF.shape)
+
+C1 = 7200
+C2 = 8400
+R1 = 3000
+R2 = 4800
+c1 = int(C1/30)
+c2 = int(C2/30)
+r1 = int(R1/30)
+r2 = int(R2/30)
+
+DF = DF.iloc[r1:r2, c1:c2]
+
+print(DF.head())
+print(DF.shape)
+
+x = np.linspace(C1, C2, (c2-c1))
+x = [s/32.5 for s in x]
+x=np.array(x)
+
+y = np.linspace(R1, R2, (r2-r1))
+y = [s/32.5 for s in y]
+y=np.array(y)
+
+X,Y = np.meshgrid(x,y)
+df = DF.to_numpy()
+
+fig = plt.figure(figsize =(14, 9))
+ax = plt.axes(projection ='3d')
+ax.plot_surface(X, Y, df, cmap='coolwarm')
+
+plt.xlabel("x-position (um)")
+plt.ylabel("y-position (um)")
+
+plt.show()
