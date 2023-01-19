@@ -18,16 +18,16 @@ import math
 from matplotlib.ticker import StrMethodFormatter
 from mpl_toolkits.mplot3d import axes3d
 
-DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\3.7 V_0001.ascii.csv", header=None)
+DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\3.7 V_0001.ascii.csv")
+
 DF=DF.dropna(axis=1)
 print(DF.head())
 print(DF.shape)
 
-
-C1 = 7200
-C2 = 8400
-R1 = 3000
-R2 = 4800
+C1 = 6300
+C2 = 9000
+R1 = 2100
+R2 = 5100
 c1 = int(C1/30)
 c2 = int(C2/30)
 r1 = int(R1/30)
@@ -48,12 +48,23 @@ y=np.array(y)
 
 X,Y = np.meshgrid(x,y)
 df = DF.to_numpy()
+fig,ax=plt.subplots(1,1)
+cp=ax.contourf(x,y,df, 200, zdir='z', offset=-100, cmap='hot')
+clb=fig.colorbar(cp, ticks=(np.linspace(0, 3500, num=8)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
+for l in clb.ax.yaxis.get_ticklabels():
+    l.set_weight("bold")
+    l.set_fontsize(12)
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=5)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=5)
 
-plt.figure()
-plt.contourf(X,Y,df, 200, zdir='z', offset=-100, cmap='coolwarm')
-clb = plt.colorbar()
-clb.ax.set_title('Photon/s')
-plt.xlabel("x-position (um)")
-plt.ylabel("y-position (um)")
 
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 plt.show()
