@@ -18,7 +18,7 @@ import math
 from matplotlib.ticker import StrMethodFormatter
 from mpl_toolkits.mplot3d import axes3d
 
-DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\3.7 V_0001.ascii.csv", header=None)
+DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\8.9 V_0001.ascii.csv", header=None)
 DF=DF.dropna(axis=1)
 print(DF.head())
 print(DF.shape)
@@ -50,9 +50,23 @@ df = DF.to_numpy()
 
 fig = plt.figure(figsize =(14, 9))
 ax = plt.axes(projection ='3d')
-ax.plot_surface(X, Y, df, cmap='coolwarm')
+ax.plot_surface(X, Y, df, cmap='hot')
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=13)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=15)
+ax.set_zlabel('Photon/s', fontsize=13, fontweight="bold", labelpad=15)
+ax.set_xticks(np.linspace(220, 250, num=4).tolist())
+ax.set_yticks(np.linspace(100, 150, num=6).tolist())
+ax.set_zticks(np.linspace(1000, 4000, num=7).tolist())
 
-plt.xlabel("x-position (um)")
-plt.ylabel("y-position (um)")
-
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.zaxis.label.set_fontsize(13)
+ax.zaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_zticklabels(ax.get_zticks(), weight='bold')
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
 plt.show()
