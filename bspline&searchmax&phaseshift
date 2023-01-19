@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan 19 22:36:07 2023
+
+@author: limyu
+"""
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from scipy import interpolate
+import numpy as np 
+
+
+
+df1 = pd.read_excel(r"C:\Users\limyu\Google Drive\mzi heater\1600um length mzi heater v2.xlsx")
+print(df1.columns)
+df1=df1.loc[df1['Wavelength'] > 1550]
+df1=df1.loc[df1['Wavelength'] < 1560]
+print(df1)
+columns = list(df1.columns)
+del columns[0]
+print(columns)
+
+x=df1["Wavelength"]
+
+max_wavelength =[]
+
+for column in columns:
+    y = df1[column]
+    tck = interpolate.splrep(x, y, s=3, k=4) 
+    x_new = np.linspace(min(x), max(x), 1000)
+    y_fit = interpolate.BSpline(*tck)(x_new)
+    plt.title("BSpline curve fitting")
+
+
+    plt.plot(x_new, y_fit)
+    print(column)
+    print(max(y_fit))
+    i = int(sum(np.where(y_fit == max(y_fit))))
+    print(x_new[i])
+    print(" ")
+    max_wavelength.append(x_new[i])
+
+   
+plt.legend(columns, loc="best")
+plt.show() 
+plt.close()
+plt.scatter(columns, max_wavelength)
+plt.plot(columns, max_wavelength)
+plt.show()
+plt.close()
+
