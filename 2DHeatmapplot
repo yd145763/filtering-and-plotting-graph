@@ -1,70 +1,48 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 18 09:20:50 2023
-
-@author: limyu
-"""
-
-import numpy as np
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import (MultipleLocator,
-							FormatStrFormatter,
-							AutoMinorLocator)
-
-import matplotlib.ticker as ticker
-import math
 from matplotlib.ticker import StrMethodFormatter
-from mpl_toolkits.mplot3d import axes3d
-
-DF = pd.read_csv("C:\\Users\\limyu\\Google Drive\\mzi heater\\3.7 V_0001.ascii.csv")
-
-DF=DF.dropna(axis=1)
-print(DF.head())
-print(DF.shape)
-
-C1 = 6300
-C2 = 9000
-R1 = 2100
-R2 = 5100
-c1 = int(C1/30)
-c2 = int(C2/30)
-r1 = int(R1/30)
-r2 = int(R2/30)
-
-DF = DF.iloc[r1:r2, c1:c2]
-
-print(DF.head())
-print(DF.shape)
-
-x = np.linspace(C1, C2, (c2-c1))
-x = [s/32.5 for s in x]
-x=np.array(x)
-
-y = np.linspace(R1, R2, (r2-r1))
-y = [s/32.5 for s in y]
-y=np.array(y)
-
-X,Y = np.meshgrid(x,y)
-df = DF.to_numpy()
-fig,ax=plt.subplots(1,1)
-cp=ax.contourf(x,y,df, 200, zdir='z', offset=-100, cmap='hot')
-clb=fig.colorbar(cp, ticks=(np.linspace(0, 3500, num=8)).tolist())
-clb.ax.set_title('Photon/s', fontweight="bold")
-for l in clb.ax.yaxis.get_ticklabels():
-    l.set_weight("bold")
-    l.set_fontsize(12)
-ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=5)
-ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=5)
 
 
-ax.xaxis.label.set_fontsize(13)
-ax.xaxis.label.set_weight("bold")
-ax.yaxis.label.set_fontsize(13)
-ax.yaxis.label.set_weight("bold")
-ax.tick_params(axis='both', which='major', labelsize=13)
-ax.set_yticklabels(ax.get_yticks(), weight='bold')
-ax.set_xticklabels(ax.get_xticks(), weight='bold')
-ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.show()
+radius = ["15um", "20um", "30um", "40um", "50um", "60um", "70um", "80um", "100um", "infinity"]
+
+for radii in radius:
+    df = pd.read_csv(r"C:\Users\limyu\Google Drive\amf nitride chip reverse simulation\3D "+radii+" radius apodized grating duty cycle 0.5 pitch 40_60 1.1 and 1.2.csv",header=None, sep=" ")
+    
+    df=df.dropna(axis=1)
+    print(df)
+    df=df.transpose()
+    df=df.transpose()
+    df=df.transpose()
+    
+
+    x = np.linspace(-40, 40, 1570)
+    y = np.linspace(-12, 12, 469)
+
+    X,Y = np.meshgrid(x,y)
+    df1 = df.to_numpy()
+    fig,ax=plt.subplots(1,1)
+    cp=ax.contourf(X,Y,df, 200, zdir='z', offset=-100, cmap='hot')
+    clb=fig.colorbar(cp, ticks=(np.linspace(0, 0.003, num=7)).tolist())
+    clb.ax.set_title('Electric Field (eV)', fontweight="bold")
+    for l in clb.ax.yaxis.get_ticklabels():
+        l.set_weight("bold")
+        l.set_fontsize(12)
+    ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+    ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+
+
+    ax.xaxis.label.set_fontsize(13)
+    ax.xaxis.label.set_weight("bold")
+    ax.yaxis.label.set_fontsize(13)
+    ax.yaxis.label.set_weight("bold")
+    ax.tick_params(axis='both', which='major', labelsize=13)
+    ax.set_yticklabels(ax.get_yticks(), weight='bold')
+    ax.set_xticklabels(ax.get_xticks(), weight='bold')
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+    plt.show()
+    plt.close()
+    
+    
+
