@@ -1,0 +1,128 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 20 22:36:48 2023
+
+@author: limyu
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 20 17:21:33 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator,
+							FormatStrFormatter,
+							AutoMinorLocator)
+
+import matplotlib.ticker as ticker
+import math
+from matplotlib.ticker import StrMethodFormatter
+from mpl_toolkits.mplot3d import axes3d
+
+master_data_verticle = pd.DataFrame([])
+master_data_horizontal = pd.DataFrame([])
+radius = ["15um", "20um", "30um", "40um", "50um", "60um", "70um", "80um", "100um", "infinity"]
+
+for radii in radius:
+    DF = pd.read_csv(r"C:\Users\limyu\Google Drive\amf nitride chip reverse simulation\3D "+radii+" radius apodized grating duty cycle 0.5 pitch 40_60 1.1 and 1.2.csv",header=None, sep=" ")
+    DF=DF.dropna(axis=1)
+    DF=DF.transpose()
+    print(DF.head())
+    print(DF.shape)
+
+    x = np.linspace(-40, 40, 1570)
+    y = np.linspace(-12, 12, 469)
+
+
+    X,Y = np.meshgrid(x,y)
+    df = DF.to_numpy()
+
+    fig = plt.figure(figsize =(14, 9))
+    ax = plt.axes(projection ='3d')
+    ax.plot_surface(X, Y, df, cmap='hot')
+    ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=13)
+    ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=15)
+    ax.set_zlabel('Photon/s', fontsize=13, fontweight="bold", labelpad=15)
+    ax.set_xticks(np.linspace(-40, 40, num=5).tolist())
+    ax.set_yticks(np.linspace(-12, 12, num=7).tolist())
+    ax.set_zticks(np.linspace(0.001, 0.004, num=4).tolist())
+
+    ax.xaxis.label.set_fontsize(13)
+    ax.xaxis.label.set_weight("bold")
+    ax.yaxis.label.set_fontsize(13)
+    ax.yaxis.label.set_weight("bold")
+    ax.zaxis.label.set_fontsize(13)
+    ax.zaxis.label.set_weight("bold")
+    ax.tick_params(axis='both', which='major', labelsize=13)
+    ax.set_zticklabels(ax.get_zticks(), weight='bold')
+    ax.set_yticklabels(ax.get_yticks(), weight='bold')
+    ax.set_xticklabels(ax.get_xticks(), weight='bold')
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+    plt.show()
+    plt.close()
+    
+    df = pd.DataFrame(df)
+
+    
+    E_verticle = df.iloc[:,600]
+    master_data_verticle[radii] = E_verticle
+    
+    E_horizontal = df.iloc[234,:]
+    master_data_horizontal[radii] = E_horizontal
+    
+print(master_data_verticle.head())
+print(master_data_horizontal.head())
+
+ax2 = plt.axes()
+for radii in radius:
+    ax2.plot(y, master_data_verticle[radii].tolist())
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+legend = ax2.legend(radius, fontsize=13, prop = {'weight':'bold'}, title="Radius", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("y-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()
+
+ax1 = plt.axes()
+for radii in radius:
+    ax1.plot(x, master_data_horizontal[radii].tolist())
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(radius, fontsize=13, prop = {'weight':'bold'}, title="Radius", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()    
+
+
