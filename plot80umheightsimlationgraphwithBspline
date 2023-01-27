@@ -1,0 +1,199 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 27 20:07:07 2023
+
+@author: limyu
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import os
+import imp
+from matplotlib.ticker import StrMethodFormatter
+from scipy import interpolate
+
+master_data_horizontal = pd.read_excel(r'C:\Users\limyu\Google Drive\fieldat80um.xlsx')
+print(master_data_horizontal.columns)
+
+teeth = ['2D apodized grating duty cycle 0.5 pitch 1.2 um 2 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 4 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 6 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 8 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 10 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 20 teeth',
+         '2D apodized grating duty cycle 0.5 pitch 1.2 um 30 teeth']
+teeth_legend = ["3.0 µm", "5.4 µm", "7.8 µm", "10.2 µm", "12.6 µm", "24.6 µm", "36.6 µm"]
+
+pitch = ['2D straight grating duty cycle 0.5 pitch fixed at 0.7 um',
+         '2D straight grating duty cycle 0.5 pitch fixed at 0.8 um',
+         '2D straight grating duty cycle 0.5 pitch fixed at 0.9 um',
+         '2D straight grating duty cycle 0.5 pitch fixed at 1.0 um',
+         '2D straight grating duty cycle 0.5 pitch fixed at 1.1 um',
+         '2D straight grating duty cycle 0.5 pitch fixed at 1.2 um']
+pitch_legend = ["0.7 µm", "0.8 µm", "0.9 µm", "1.0 µm", "1.1 µm", "1.2 µm"]
+
+mixture = ['2D apodized grating duty cycle 0.5 pitch 20_80 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 30_70 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 40_60 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 50_50 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 60_40 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 70_30 1.1 and 1.2',
+           '2D apodized grating duty cycle 0.5 pitch 80_20 1.1 and 1.2']
+mixture_legend = ["20/80", "30/70", "40/60", "50/50", "60/40", "70/30", "80/20"]
+
+x = master_data_horizontal.iloc[:,0]
+ 
+
+ax1 = plt.axes()
+for teeth1 in teeth:
+    y = master_data_horizontal[teeth1]
+    ax1.plot(x, y.tolist(), linewidth = 0.5)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(teeth_legend, fontsize=13, prop = {'weight':'bold'}, title="Grating Length", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()  
+
+ax1 = plt.axes()
+for teeth1 in teeth:
+    y = master_data_horizontal[teeth1]
+    tck = interpolate.splrep(x, y, s=0.1, k=2) 
+    x_new = np.linspace(min(x), max(x), 20000)
+    y_fit = interpolate.BSpline(*tck)(x_new)
+    ax1.plot(x_new, y_fit.tolist(), linewidth = 2)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(teeth_legend, fontsize=13, prop = {'weight':'bold'}, title="Grating Length", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()  
+
+ax1 = plt.axes()
+for pitch1 in pitch:
+    y = master_data_horizontal[pitch1]
+    ax1.plot(x, y.tolist(), linewidth = 0.5)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(pitch_legend, fontsize=13, prop = {'weight':'bold'}, title="Pitch", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()
+
+ax1 = plt.axes()
+for pitch1 in pitch:
+    y = master_data_horizontal[pitch1]
+    tck = interpolate.splrep(x, y, s=0.1, k=2) 
+    x_new = np.linspace(min(x), max(x), 20000)
+    y_fit = interpolate.BSpline(*tck)(x_new)
+    ax1.plot(x_new, y_fit.tolist(), linewidth = 2)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(pitch_legend, fontsize=13, prop = {'weight':'bold'}, title="Pitch", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()
+
+ax1 = plt.axes()
+for mixture1 in mixture:
+    y = master_data_horizontal[mixture1]
+    ax1.plot(x, y.tolist(), linewidth = 0.5)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(mixture_legend, fontsize=13, prop = {'weight':'bold'}, title="Pitch Ratio", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()
+
+ax1 = plt.axes()
+for mixture1 in mixture:
+    y = master_data_horizontal[mixture1]
+    tck = interpolate.splrep(x, y, s=0.1, k=2) 
+    x_new = np.linspace(min(x), max(x), 20000)
+    y_fit = interpolate.BSpline(*tck)(x_new)
+    ax1.plot(x_new, y_fit.tolist(), linewidth = 2)
+ax1.tick_params(which='major', width=2.00)
+ax1.tick_params(which='minor', width=2.00)
+legend = ax1.legend(mixture_legend, fontsize=13, prop = {'weight':'bold'}, title="Pitch Ratio", title_fontproperties={'weight':'bold'}, loc="upper left")
+ax1.xaxis.label.set_fontsize(13)
+ax1.xaxis.label.set_weight("bold")
+ax1.yaxis.label.set_fontsize(13)
+ax1.yaxis.label.set_weight("bold")
+ax1.tick_params(axis='both', which='major', labelsize=13)
+ax1.set_yticklabels(ax1.get_yticks(), weight='bold')
+ax1.set_xticklabels(ax1.get_xticks(), weight='bold')
+ax1.yaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}'))
+ax1.spines["right"].set_visible(False)
+ax1.spines["top"].set_visible(False)
+ax1.spines['bottom'].set_linewidth(2)
+ax1.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (um)")
+plt.ylabel("Electric Field (eV)")
+plt.show()
+plt.close()
