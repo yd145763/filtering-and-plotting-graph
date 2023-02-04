@@ -1,0 +1,36 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
+from scipy import interpolate
+from scipy.signal import chirp, find_peaks, peak_widths
+
+master_data_verticle = pd.DataFrame([])
+master_data_horizontal = pd.DataFrame([])
+
+
+df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius1 4x mag lower 50mA laser_0001.ascii.csv",header=None, sep=",")
+    
+df=df.dropna(axis=1)
+df_r3 = df.iloc[14:38, 263:297]
+
+V = np.arange(0,34,1)
+
+for v in V:
+    x = df_r3_ver = df_r3.iloc[:,v]
+    x = x.to_numpy()
+    peaks, _ = find_peaks(x)
+    results_half = peak_widths(x, peaks, rel_height=0.5)
+    results_half[0]  # widths
+
+    results_full = peak_widths(x, peaks, rel_height=1)
+    results_full[0]  # widths
+
+
+    plt.plot(x)
+    plt.plot(peaks, x[peaks], "x")
+    plt.hlines(*results_half[1:], color="C2")
+    plt.title(str(v))
+    plt.show()
+
+    print(max(results_half[0]))
