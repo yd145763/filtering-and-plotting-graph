@@ -9,15 +9,15 @@ master_data_verticle = pd.DataFrame([])
 master_data_horizontal = pd.DataFrame([])
 
 
-df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius1 4x mag lower 50mA laser_0001.ascii.csv",header=None, sep=",")
+df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius2 4x mag upper 50mA laser_0001.ascii.csv",header=None, sep=",")
     
 df=df.dropna(axis=1)
-df_r3 = df.iloc[14:38, 263:297]
+df_r5 = df.iloc[14:38, 268:302]
 
 V = np.arange(0,34,1)
 
 for v in V:
-    x = df_r3_ver = df_r3.iloc[:,v]
+    x = df_r5.iloc[:,v]
     x = x.to_numpy()
     peaks, _ = find_peaks(x)
     results_half = peak_widths(x, peaks, rel_height=0.5)
