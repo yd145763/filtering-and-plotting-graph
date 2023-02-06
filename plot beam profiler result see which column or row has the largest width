@@ -4,20 +4,83 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import StrMethodFormatter
 from scipy import interpolate
 from scipy.signal import chirp, find_peaks, peak_widths
+import statistics
 
-master_data_verticle = pd.DataFrame([])
-master_data_horizontal = pd.DataFrame([])
 
 
 df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius2 4x mag upper 50mA laser_0001.ascii.csv",header=None, sep=",")
-    
+  
 df=df.dropna(axis=1)
-df_r5 = df.iloc[14:38, 268:302]
+df_r = df.iloc[14:38, 268:302]
 
+H = np.arange(0,24,1)
 V = np.arange(0,34,1)
 
+def calculate_statistics(array):
+    mean = np.mean(array)
+    std_dev = np.std(array)
+    mse = np.mean((array - mean)**2)
+    return mean, std_dev, mse
+
+def second_highest(arr):
+  sorted_arr = sorted(set(arr), reverse=True)
+  return sorted_arr[1] if len(sorted_arr) > 1 else None
+
+
+horizontal_data = pd.DataFrame([])
+
+for h in H:
+    x = df_r.iloc[h,:]
+    x = x - min(x)
+    x = x.to_numpy()
+    peaks, _ = find_peaks(x)
+    results_half = peak_widths(x, peaks, rel_height=0.5)
+    results_half[0]  # widths
+
+    results_full = peak_widths(x, peaks, rel_height=1)
+    results_full[0]  # widths
+
+    
+    mean_half, std_dev_half, mse_half = calculate_statistics(results_half[0])
+   
+    mean_full, std_dev_full, mse_full = calculate_statistics(results_full[0])
+
+
+    
+    if len(x[peaks]) <=1 or 3*(second_highest(x[peaks])) < max(x[peaks]):
+        horizontal_data[str(h)] = x
+        
+        
+peak_heights_h = []
+index_h = []
+
+for col in horizontal_data.columns:
+    x1 = horizontal_data[col].values
+    peaks_h_narrow, _ = find_peaks(x1)
+    results_full = peak_widths(x1, peaks_h_narrow, rel_height=1)
+    index_h.append(col)
+    peak_heights_h.append(max(x1[peaks_h_narrow]))
+
+
+
+if len(peak_heights_h) % 2 ==0:
+    middle_start = len(peak_heights_h)//2 - 1
+    middle_end = len(peak_heights_h)//2 + 1
+    middle_two = peak_heights_h[middle_start:middle_end]
+    i = peak_heights_h.index(max(middle_two))
+    print("horizontal index is ")
+    print(index_h[i])
+elif len(peak_heights_h) % 2 !=0:
+    i = peak_heights_h.index(statistics.median(peak_heights_h))
+    print("horizontal index is ")
+    print(index_h[i])
+
+
+
+verticle_data = pd.DataFrame([])
 for v in V:
-    x = df_r5.iloc[:,v]
+    x = df_r.iloc[:,v]
+    x = x - min(x)
     x = x.to_numpy()
     peaks, _ = find_peaks(x)
     results_half = peak_widths(x, peaks, rel_height=0.5)
@@ -27,10 +90,41 @@ for v in V:
     results_full[0]  # widths
 
 
-    plt.plot(x)
-    plt.plot(peaks, x[peaks], "x")
-    plt.hlines(*results_half[1:], color="C2")
-    plt.title(str(v))
-    plt.show()
 
-    print(max(results_half[0]))
+    
+    mean_half, std_dev_half, mse_half = calculate_statistics(results_half[0])
+
+    
+    mean_full, std_dev_full, mse_full = calculate_statistics(results_full[0])
+
+    
+    if len(x[peaks]) <=1 or 3*(second_highest(x[peaks])) < max(x[peaks]):
+        verticle_data[str(v)] = x
+    
+
+
+
+
+peak_heights_v = []
+index_v = []
+
+for col in verticle_data.columns:
+    x1 = verticle_data[col].values
+    peaks_v_narrow, _ = find_peaks(x1)
+    results_full = peak_widths(x1, peaks_v_narrow, rel_height=1)
+    index_v.append(col)
+    peak_heights_v.append(max(x1[peaks_v_narrow]))
+
+
+if len(peak_heights_v) % 2 ==0:
+    middle_start = len(peak_heights_v)//2 - 1
+    middle_end = len(peak_heights_v)//2 + 1
+    middle_two = peak_heights_v[middle_start:middle_end]
+    i = peak_heights_v.index(max(middle_two))
+    print("vertical index is ")
+    print(index_v[i])
+elif len(peak_heights_v) % 2 !=0:
+    i = peak_heights_v.index(statistics.median(peak_heights_v))
+    print("vertical index is ")
+    print(index_v[i])
+        
