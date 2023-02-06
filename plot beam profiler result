@@ -21,6 +21,13 @@ df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\g
 df=df.dropna(axis=1)
 print(df)
 
+verticle_peaks = []
+verticle_half = []
+verticle_full = []
+
+horizontal_peaks = []
+horizontal_half = []
+horizontal_full = []
 
 x = np.linspace(0, 9570, num=320)
 x = x/20
@@ -31,7 +38,9 @@ colorbartick = 9
 
 X,Y = np.meshgrid(x,y)
 df1 = df.to_numpy()
-fig,ax=plt.subplots(1,1)
+
+fig = plt.figure(figsize=(7, 4))
+ax = plt.axes()
 cp=ax.contourf(X,Y,df, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
 clb.ax.set_title('Photon/s', fontweight="bold")
@@ -79,8 +88,8 @@ plt.show()
 plt.close()
 
 df_r1 = df.iloc[226:250, 260:294]
-df_r1_hor = df_r1.iloc[12,:]
-df_r1_ver = df_r1.iloc[:, 17]
+df_r1_hor = df_r1.iloc[13,:]
+df_r1_ver = df_r1.iloc[:, 14]
 xr1 = np.linspace(0, 990, num=34)
 xr1 = xr1/20
 yr1 = np.linspace(0, 690, num=24)
@@ -92,7 +101,8 @@ colorbartick = 9
 
 Xr1,Yr1 = np.meshgrid(xr1,yr1)
 df_r1 = df_r1.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr1,Yr1,df_r1, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
 clb.ax.set_title('Photon/s', fontweight="bold")
@@ -112,7 +122,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -124,6 +134,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r1 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r1)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r1, peaks, rel_height=0.5)
 width = results_half[0]
@@ -151,12 +162,14 @@ x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
 x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
-print("horizontalr1")
+print("30µmhorizontalr1")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr1")
+print("30µmhorizontalfullr1")
 print(max(results_full_plot[0]))
 print(" ")
 
@@ -180,9 +193,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -195,6 +209,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 v_r1 = y_fit - min(y_fit)
 peaks, _ = find_peaks(v_r1)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r1, peaks, rel_height=0.5)
 width = results_half[0]
@@ -223,13 +238,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler1")
+print("30µmverticler1")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr1")
+print("30µmverticlefullr1")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r1)
 ax2.plot(peaks_v, v_r1[peaks], "o")
@@ -251,16 +269,17 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
 
 df_r2 = df.iloc[85:109, 261:295]
-df_r2_hor = df_r2.iloc[13,:]
-df_r2_ver = df_r2.iloc[:, 18]
+df_r2_hor = df_r2.iloc[14,:]
+df_r2_ver = df_r2.iloc[:, 16]
 xr2 = np.linspace(0, 990, num=34)
 xr2 = xr2/20
 yr2 = np.linspace(0, 690, num=24)
@@ -270,10 +289,11 @@ colorbartick = 5
 
 Xr2,Yr2 = np.meshgrid(xr2,yr2)
 df_r2 = df_r2.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr2,Yr2,df_r2, 200, zdir='z', offset=-100, cmap='hot')
-clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
-clb.ax.set_title('Electric Field (eV)', fontweight="bold")
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 200)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
 for l in clb.ax.yaxis.get_ticklabels():
     l.set_weight("bold")
     l.set_fontsize(12)
@@ -290,7 +310,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -303,6 +323,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r2 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r2)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r2, peaks, rel_height=0.5)
 width = results_half[0]
@@ -331,13 +352,15 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("horizontalr2")
+print("20µmhorizontalr2")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr2")
+print("20µmhorizontalfullr2")
 print(max(results_full_plot[0]))
 print(" ")
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, h_r2)
 ax2.plot(peaks_h, h_r2[peaks], "o")
@@ -359,9 +382,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -374,6 +398,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 v_r2 = y_fit - min(y_fit)
 peaks, _ = find_peaks(v_r2)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r2, peaks, rel_height=0.5)
 width = results_half[0]
@@ -402,13 +427,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler2")
+print("20µmverticler2")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr2")
+print("20µmverticlefullr2")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r2)
 ax2.plot(peaks_v, v_r2[peaks], "o")
@@ -430,16 +458,17 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
 
 df_r3 = df.iloc[14:38, 263:297]
-df_r3_hor = df_r3.iloc[13,:]
-df_r3_ver = df_r3.iloc[:, 19]
+df_r3_hor = df_r3.iloc[10,:]
+df_r3_ver = df_r3.iloc[:, 18]
 xr3 = np.linspace(0, 990, num=34)
 xr3 = xr3/20
 yr3 = np.linspace(0, 690, num=24)
@@ -449,10 +478,11 @@ colorbartick = 5
 
 Xr3,Yr3 = np.meshgrid(xr3,yr3)
 df_r3 = df_r3.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr3,Yr3,df_r3, 200, zdir='z', offset=-100, cmap='hot')
-clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
-clb.ax.set_title('Electric Field (eV)', fontweight="bold")
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 200)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
 for l in clb.ax.yaxis.get_ticklabels():
     l.set_weight("bold")
     l.set_fontsize(12)
@@ -469,7 +499,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -482,6 +512,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r3 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r3)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r3, peaks, rel_height=0.5)
 width = results_half[0]
@@ -510,13 +541,15 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("horizontalr3")
+print("15µmhorizontalr3")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr3")
+print("15µmhorizontalfullr3")
 print(max(results_full_plot[0]))
 print(" ")
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, h_r3)
 ax2.plot(peaks_h, h_r3[peaks], "o")
@@ -538,9 +571,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -553,6 +587,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 v_r3 = y_fit - min(y_fit)
 peaks, _ = find_peaks(v_r3)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r3, peaks, rel_height=0.5)
 width = results_half[0]
@@ -581,13 +616,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler3")
+print("15µmverticler3")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr3")
+print("15µmverticlefullr3")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r3)
 ax2.plot(peaks_v, v_r3[peaks], "o")
@@ -609,9 +647,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -632,7 +671,8 @@ colorbartick = 9
 
 X,Y = np.meshgrid(x,y)
 df1 = df.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(7, 4))
+ax = plt.axes()
 cp=ax.contourf(X,Y,df, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
 clb.ax.set_title('Photon/s', fontweight="bold")
@@ -675,13 +715,14 @@ ax.set_zticklabels(ax.get_zticks(), weight='bold')
 ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\radius2_upper_everything_3D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
 df_r4 = df.iloc[226:250, 263:297]
-df_r4_hor = df_r4.iloc[8,:]
-df_r4_ver = df_r4.iloc[:, 16]
+df_r4_hor = df_r4.iloc[11,:]
+df_r4_ver = df_r4.iloc[:, 17]
 xr4 = np.linspace(0, 990, num=34)
 xr4 = xr4/20
 yr4 = np.linspace(0, 690, num=24)
@@ -693,7 +734,8 @@ colorbartick = 9
 
 Xr4,Yr4 = np.meshgrid(xr4,yr4)
 df_r4 = df_r4.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr4,Yr4,df_r4, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
 clb.ax.set_title('Photon/s', fontweight="bold")
@@ -713,7 +755,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -725,6 +767,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r4 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r4)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r4, peaks, rel_height=0.5)
 width = results_half[0]
@@ -753,13 +796,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("horizontalr4")
+print("60µmhorizontalr4")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr4")
+print("60µmhorizontalfullr4")
 print(max(results_full_plot[0]))
 print(" ")
+
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, h_r4)
 ax2.plot(peaks_h, h_r4[peaks], "o")
@@ -781,9 +827,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -798,6 +845,7 @@ v_r4 = y_fit - min(y_fit)
 
 peaks, _ = find_peaks(v_r4)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r4, peaks, rel_height=0.5)
 width = results_half[0]
@@ -826,13 +874,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler4")
+print("60µmverticler4")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr4")
+print("60µmverticlefullr4")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r4)
 ax2.plot(peaks_v, v_r4[peaks], "o")
@@ -854,16 +905,17 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
 
 df_r5 = df.iloc[85:109, 266:300]
-df_r5_hor = df_r5.iloc[10,:]
-df_r5_ver = df_r5.iloc[:, 15]
+df_r5_hor = df_r5.iloc[11,:]
+df_r5_ver = df_r5.iloc[:, 17]
 xr5 = np.linspace(0, 990, num=34)
 xr5 = xr5/20
 yr5 = np.linspace(0, 690, num=24)
@@ -873,10 +925,11 @@ colorbartick = 5
 
 Xr5,Yr5 = np.meshgrid(xr5,yr5)
 df_r5 = df_r5.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr5,Yr5,df_r5, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
-clb.ax.set_title('Electric Field (eV)', fontweight="bold")
+clb.ax.set_title('Photon/s', fontweight="bold")
 for l in clb.ax.yaxis.get_ticklabels():
     l.set_weight("bold")
     l.set_fontsize(12)
@@ -893,7 +946,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -906,6 +959,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r5 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r5)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r5, peaks, rel_height=0.5)
 width = results_half[0]
@@ -934,13 +988,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("horizontalr5")
+print("50µmhorizontalr5")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr5")
+print("50µmhorizontalfullr5")
 print(max(results_full_plot[0]))
 print(" ")
+
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, h_r5)
 ax2.plot(peaks_h, h_r5[peaks], "o")
@@ -962,9 +1019,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -977,6 +1035,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 v_r5 = y_fit - min(y_fit)
 peaks, _ = find_peaks(v_r5)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r5, peaks, rel_height=0.5)
 width = results_half[0]
@@ -1005,13 +1064,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler5")
+print("50µmverticler5")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr5")
+print("50µmverticlefullr5")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r5)
 ax2.plot(peaks_v, v_r5[peaks], "o")
@@ -1033,16 +1095,17 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
 
 df_r6 = df.iloc[14:38, 268:302]
-df_r6_hor = df_r6.iloc[9,:]
-df_r6_ver = df_r6.iloc[:, 15]
+df_r6_hor = df_r6.iloc[15,:]
+df_r6_ver = df_r6.iloc[:, 18]
 xr6 = np.linspace(0, 990, num=34)
 xr6 = xr6/20
 yr6 = np.linspace(0, 690, num=24)
@@ -1052,10 +1115,11 @@ colorbartick = 5
 
 Xr6,Yr6 = np.meshgrid(xr6,yr6)
 df_r6 = df_r6.to_numpy()
-fig,ax=plt.subplots(1,1)
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
 cp=ax.contourf(Xr6,Yr6,df_r6, 200, zdir='z', offset=-100, cmap='hot')
 clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
-clb.ax.set_title('Electric Field (eV)', fontweight="bold")
+clb.ax.set_title('Photon/s', fontweight="bold")
 for l in clb.ax.yaxis.get_ticklabels():
     l.set_weight("bold")
     l.set_fontsize(12)
@@ -1072,7 +1136,7 @@ ax.set_yticklabels(ax.get_yticks(), weight='bold')
 ax.set_xticklabels(ax.get_xticks(), weight='bold')
 ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40um_2D.png", dpi=300, bbox_inches="tight")
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40µm_2D.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -1085,6 +1149,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 h_r6 = y_fit - min(y_fit)
 peaks, _ = find_peaks(h_r6)
 peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
 
 results_half = peak_widths(h_r6, peaks, rel_height=0.5)
 width = results_half[0]
@@ -1113,13 +1178,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("horizontalr6")
+print("40µmhorizontalr6")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("horizontalfullr6")
+print("40µmhorizontalfullr6")
 print(max(results_full_plot[0]))
 print(" ")
+
+horizontal_half.append(max(results_half_plot[0]))
+horizontal_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, h_r6)
 ax2.plot(peaks_h, h_r6[peaks], "o")
@@ -1141,9 +1209,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40um_horizontal.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -1156,6 +1225,7 @@ y_fit = interpolate.BSpline(*tck)(x_new)
 v_r6 = y_fit - min(y_fit)
 peaks, _ = find_peaks(v_r6)
 peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
 
 results_half = peak_widths(v_r6, peaks, rel_height=0.5)
 width = results_half[0]
@@ -1184,13 +1254,16 @@ x_max_f = np.array(x_max_f)
 results_full_plot = (width_f, height_f, x_min_f, x_max_f)
 
 
-print("verticler6")
+print("40µmverticler6")
 print(max(results_half_plot[0]))
 print(" ")
 
-print("verticlefullr6")
+print("40µmverticlefullr6")
 print(max(results_full_plot[0]))
 print(" ")
+
+verticle_half.append(max(results_half_plot[0]))
+verticle_full.append(max(results_full_plot[0]))
 
 ax2.plot(x_new, v_r6)
 ax2.plot(peaks_v, v_r6[peaks], "o")
@@ -1212,9 +1285,10 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40um_verticle.png", dpi=300, bbox_inches="tight")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
@@ -1225,20 +1299,20 @@ xr4_fit = np.linspace(min(xr4), max(xr4), 1000)
 xr5_fit = np.linspace(min(xr5), max(xr5), 1000)
 xr6_fit = np.linspace(min(xr6), max(xr6), 1000)
 hor = np.linspace(min(xr6), max(xr6), 1000)
-master_data_horizontal["hor_30um"] = h_r1
-master_data_horizontal["hor_20um"] = h_r2
-master_data_horizontal["hor_15um"] = h_r3
-master_data_horizontal["hor_60um"] = h_r4
-master_data_horizontal["hor_50um"] = h_r5
-master_data_horizontal["hor_40um"] = h_r6
+master_data_horizontal["hor_30µm"] = h_r1
+master_data_horizontal["hor_20µm"] = h_r2
+master_data_horizontal["hor_15µm"] = h_r3
+master_data_horizontal["hor_60µm"] = h_r4
+master_data_horizontal["hor_50µm"] = h_r5
+master_data_horizontal["hor_40µm"] = h_r6
 master_data_horizontal["x_position"] = hor
 ax2 = plt.axes()
-ax2.plot(hor, master_data_horizontal["hor_15um"])
-ax2.plot(hor, master_data_horizontal["hor_20um"])
-ax2.plot(hor, master_data_horizontal["hor_30um"])
-ax2.plot(hor, master_data_horizontal["hor_40um"])
-ax2.plot(hor, master_data_horizontal["hor_50um"])
-ax2.plot(hor, master_data_horizontal["hor_60um"])
+ax2.plot(hor, master_data_horizontal["hor_15µm"])
+ax2.plot(hor, master_data_horizontal["hor_20µm"])
+ax2.plot(hor, master_data_horizontal["hor_30µm"])
+ax2.plot(hor, master_data_horizontal["hor_40µm"])
+ax2.plot(hor, master_data_horizontal["hor_50µm"])
+ax2.plot(hor, master_data_horizontal["hor_60µm"])
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
 ax2.xaxis.label.set_fontsize(13)
@@ -1253,9 +1327,9 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("x-position (um)")
+plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["15um", "20um", "30um", "40um", "50um", "60um"])
+plt.legend(["15µm", "20µm", "30µm", "40µm", "50µm", "60µm"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\horizontal_compile.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
@@ -1268,20 +1342,20 @@ yr4_fit = np.linspace(min(yr4), max(yr4), 1000)
 yr5_fit = np.linspace(min(yr5), max(yr5), 1000)
 yr6_fit = np.linspace(min(yr6), max(yr6), 1000)
 ver = np.linspace(min(yr6), max(yr6), 1000)
-master_data_verticle["ver_30um"] = v_r1
-master_data_verticle["ver_20um"] = v_r2
-master_data_verticle["ver_15um"] = v_r3
-master_data_verticle["ver_60um"] = v_r4
-master_data_verticle["ver_50um"] = v_r5
-master_data_verticle["ver_40um"] = v_r6
+master_data_verticle["ver_30µm"] = v_r1
+master_data_verticle["ver_20µm"] = v_r2
+master_data_verticle["ver_15µm"] = v_r3
+master_data_verticle["ver_60µm"] = v_r4
+master_data_verticle["ver_50µm"] = v_r5
+master_data_verticle["ver_40µm"] = v_r6
 master_data_verticle["y_position"] = ver
 ax2 = plt.axes()
-ax2.plot(ver, master_data_verticle["ver_15um"])
-ax2.plot(ver, master_data_verticle["ver_20um"])
-ax2.plot(ver, master_data_verticle["ver_30um"])
-ax2.plot(ver, master_data_verticle["ver_40um"])
-ax2.plot(ver, master_data_verticle["ver_50um"])
-ax2.plot(ver, master_data_verticle["ver_60um"])
+ax2.plot(ver, master_data_verticle["ver_15µm"])
+ax2.plot(ver, master_data_verticle["ver_20µm"])
+ax2.plot(ver, master_data_verticle["ver_30µm"])
+ax2.plot(ver, master_data_verticle["ver_40µm"])
+ax2.plot(ver, master_data_verticle["ver_50µm"])
+ax2.plot(ver, master_data_verticle["ver_60µm"])
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
 ax2.xaxis.label.set_fontsize(13)
@@ -1296,9 +1370,9 @@ ax2.spines["right"].set_visible(False)
 ax2.spines["top"].set_visible(False)
 ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
-plt.xlabel("y-position (um)")
+plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["15um", "20um", "30um", "40um", "50um", "60um"])
+plt.legend(["15µm", "20µm", "30µm", "40µm", "50µm", "60µm"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\verticle_compile.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
@@ -1306,13 +1380,15 @@ plt.close()
 print(master_data_horizontal)
 print(master_data_verticle)
 
-print("r1 is 30um")
-print("r2 is 20um")
-print("r3 is 15um")
-print("r4 is 60um")
-print("r5 is 50um")
-print("r6 is 40um")
+print("r1 is 30µm")
+print("r2 is 20µm")
+print("r3 is 15µm")
+print("r4 is 60µm")
+print("r5 is 50µm")
+print("r6 is 40µm")
 
-radius = [15,20,30,40,50,60]
-horizontal_half = [11.768520533073577, 9.90767642967672, 11.045570440956709, 10.541050774685582, 10.305527867581993, 9.959441427462654]
-verticle_half = [9.181265484719894, 9.224085903904069, 9.100009463170371, 10.541050774685582, 11.515440992812511, 9.959441427462654]
+radius = ["15µm", "20µm", "30µm", "40µm", "50µm", "60µm"]
+master_data_verticle.to_excel(r'C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\master_data_verticle.xlsx', index=False)
+master_data_horizontal.to_excel(r'C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\master_data_horizontal.xlsx', index=False)
+peak_height_horizontal = [max(h_r1), max(h_r2), max(h_r3), max(h_r4), max(h_r5), max(h_r6) ]
+peak_height_verticle = [max(v_r1), max(v_r2), max(v_r3), max(v_r4), max(v_r5), max(v_r6) ]
