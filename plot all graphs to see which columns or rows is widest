@@ -1,0 +1,94 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
+from scipy import interpolate
+from scipy.signal import chirp, find_peaks, peak_widths
+
+master_data_verticle = pd.DataFrame([])
+master_data_horizontal = pd.DataFrame([])
+
+
+df = pd.read_csv(r"different waveguide length 50 mA 4x mag lower optimized position fixed height_0001.ascii.csv",header=None, sep=",")
+  
+df=df.dropna(axis=1)
+df_r = df.iloc[13:37, 200:234]
+
+
+H = np.arange(0,24,1)
+V = np.arange(0,34,1)
+
+def calculate_statistics(array):
+    mean = np.mean(array)
+    std_dev = np.std(array)
+    mse = np.mean((array - mean)**2)
+    return mean, std_dev, mse
+def second_highest(arr):
+  sorted_arr = sorted(set(arr), reverse=True)
+  return sorted_arr[1] if len(sorted_arr) > 1 else None
+print(" ")
+print("------------------------This is a divider--------------------------")
+print("------------------------Horizontal Graphs Start here--------------------------")
+print(" ")
+
+for h in H:
+    x = df_r.iloc[h,:]
+    x = x - min(x)
+    x = x.to_numpy()
+    peaks, _ = find_peaks(x)
+    results_half = peak_widths(x, peaks, rel_height=0.5)
+    results_half[0]  # widths
+
+    results_full = peak_widths(x, peaks, rel_height=1)
+    results_full[0]  # widths
+
+
+    plt.plot(x)
+    plt.plot(peaks, x[peaks], "x")
+    plt.hlines(*results_half[1:], color="C2")
+    plt.hlines(*results_full[1:], color="C3")
+    plt.title(str(h))
+    plt.show()
+    
+    mean_half, std_dev_half, mse_half = calculate_statistics(results_half[0])
+    print("Mean half: ", mean_half)
+    print("Standard deviation half: ", std_dev_half)
+    print("Mean Squared Error half: ", mse_half)
+    print(" ")    
+    print(str(h))
+    print(max(results_full[1]))
+    print(second_highest(results_full[1]))
+    print(" ")
+    
+print(" ")
+print("------------------------Horizontal Graphs Ends here--------------------------")
+print("------------------------This is a divider--------------------------")
+print("------------------------Vertical Graphs Start here--------------------------")
+print(" ")
+
+for v in V:
+    x = df_r.iloc[:,v]
+    x = x - min(x)
+    x = x.to_numpy()
+    peaks, _ = find_peaks(x)
+    results_half = peak_widths(x, peaks, rel_height=0.5)
+    results_half[0]  # widths
+
+    results_full = peak_widths(x, peaks, rel_height=1)
+    results_full[0]  # widths
+
+
+    plt.plot(x)
+    plt.plot(peaks, x[peaks], "x")
+    plt.hlines(*results_half[1:], color="C2")
+    plt.hlines(*results_full[1:], color="C3")
+    plt.title(str(v))
+    plt.show()
+    
+    mean_half, std_dev_half, mse_half = calculate_statistics(results_half[0])
+    print("Mean half: ", mean_half)
+    print("Standard deviation half: ", std_dev_half)
+    print("Mean Squared Error half: ", mse_half)
+    
+    print(max(results_half[0]))
+    print(max(results_full[0]))
