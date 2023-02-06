@@ -1350,6 +1350,7 @@ master_data_verticle["ver_50µm"] = v_r5
 master_data_verticle["ver_40µm"] = v_r6
 master_data_verticle["y_position"] = ver
 ax2 = plt.axes()
+
 ax2.plot(ver, master_data_verticle["ver_15µm"])
 ax2.plot(ver, master_data_verticle["ver_20µm"])
 ax2.plot(ver, master_data_verticle["ver_30µm"])
