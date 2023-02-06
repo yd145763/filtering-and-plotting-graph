@@ -1,0 +1,747 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Feb  6 15:11:06 2023
+
+@author: limyu
+"""
+
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
+from scipy import interpolate
+from scipy.signal import chirp, find_peaks, peak_widths
+
+master_data_verticle = pd.DataFrame([])
+master_data_horizontal = pd.DataFrame([])
+full_width_horizontal = []
+full_width_verticle = []
+half_width_horizontal = []
+half_width_verticle = []
+verticle_peaks = []
+horizontal_peaks = []
+length = []
+horizontal_peaks_position = []
+verticle_peaks_position = []
+
+df = pd.read_csv(r"different waveguide length 50 mA 4x mag lower optimized position fixed height_0001.ascii.csv",header=None, sep=",")
+   
+df=df.dropna(axis=1)
+print(df)
+
+
+
+
+
+
+x = np.linspace(0, 9570, num=320)
+x = x/20
+y = np.linspace(0, 7650, num=256)
+y = y/20
+colorbarmax = 4500
+colorbartick = 9
+
+X,Y = np.meshgrid(x,y)
+df1 = df.to_numpy()
+
+fig = plt.figure(figsize=(7, 4))
+ax = plt.axes()
+cp=ax.contourf(X,Y,df, 200, zdir='z', offset=-100, cmap='hot')
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 500)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
+for l in clb.ax.yaxis.get_ticklabels():
+    l.set_weight("bold")
+    l.set_fontsize(12)
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+
+
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\grating_length_everything.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+fig = plt.figure(figsize =(14, 9))
+ax = plt.axes(projection ='3d')
+ax.plot_surface(X, Y, df1, cmap='hot')
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=13)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=15)
+ax.set_zlabel('Photon/s', fontsize=13, fontweight="bold", labelpad=15)
+
+
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.zaxis.label.set_fontsize(13)
+ax.zaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_zticklabels(ax.get_zticks(), weight='bold')
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\grating_length_everything_3D.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+df_r1 = df.iloc[222:246, 209:243]
+df_r1_hor = df_r1.iloc[12,:]
+df_r1_ver = df_r1.iloc[:, 20]
+xr1 = np.linspace(0, 990, num=34)
+xr1 = xr1/20
+yr1 = np.linspace(0, 690, num=24)
+yr1 = yr1/20
+colorbarmax = 5000
+colorbartick = 9
+
+
+
+Xr1,Yr1 = np.meshgrid(xr1,yr1)
+df_r1 = df_r1.to_numpy()
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
+cp=ax.contourf(Xr1,Yr1,df_r1, 200, zdir='z', offset=-100, cmap='hot')
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 200)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
+for l in clb.ax.yaxis.get_ticklabels():
+    l.set_weight("bold")
+    l.set_fontsize(12)
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+
+
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\24.6µm_2D.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+#plot horizontal
+ax2 = plt.axes()
+tck = interpolate.splrep(xr1, df_r1_hor.tolist(), s=2, k=4) 
+x_new = np.linspace(min(xr1), max(xr1), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+h_r1 = y_fit - min(y_fit)
+peaks, _ = find_peaks(h_r1)
+peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
+
+results_half = peak_widths(h_r1, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(h_r1, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+
+print("24.6µmhorizontalr1")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("24.6µmhorizontalfullr1")
+print(max(results_full_plot[0]))
+print(" ")
+
+ax2.plot(x_new, h_r1)
+ax2.plot(peaks_h, h_r1[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\24.6µm_horizontal.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r1))
+horizontal_peaks_position.append(x_new[np.argmax(h_r1)])
+master_data_horizontal["24.6µm"] = h_r1
+
+
+
+#plot verticle
+ax2 = plt.axes()
+tck = interpolate.splrep(yr1, df_r1_ver.tolist(), s=2, k=4) 
+x_new = np.linspace(min(yr1), max(yr1), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+v_r1 = y_fit - min(y_fit)
+peaks, _ = find_peaks(v_r1)
+peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
+
+results_half = peak_widths(v_r1, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(v_r1, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+print("24.6µmverticler1")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("24.6µmverticlefullr1")
+print(max(results_full_plot[0]))
+print(" ")
+
+
+
+ax2.plot(x_new, v_r1)
+ax2.plot(peaks_v, v_r1[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("y-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\24.6µm_verticle.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r1))
+verticle_peaks_position.append(x_new[np.argmax(v_r1)])
+master_data_verticle["24.6µm"] = v_r1
+
+
+df_r2 = df.iloc[82:106, 205:239]
+df_r2_hor = df_r2.iloc[13,:]
+df_r2_ver = df_r2.iloc[:, 16]
+xr2 = np.linspace(0, 990, num=34)
+xr2 = xr2/20
+yr2 = np.linspace(0, 690, num=24)
+yr2 = yr2/20
+colorbarmax = 5000
+colorbartick = 5
+
+Xr2,Yr2 = np.meshgrid(xr2,yr2)
+df_r2 = df_r2.to_numpy()
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
+cp=ax.contourf(Xr2,Yr2,df_r2, 200, zdir='z', offset=-100, cmap='hot')
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 200)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
+for l in clb.ax.yaxis.get_ticklabels():
+    l.set_weight("bold")
+    l.set_fontsize(12)
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+
+
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\12.6µm_2D.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+
+
+
+
+#plot horizontal
+ax2 = plt.axes()
+tck = interpolate.splrep(xr2, df_r2_hor.tolist(), s=2, k=4) 
+x_new = np.linspace(min(xr2), max(xr2), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+h_r2 = y_fit - min(y_fit)
+peaks, _ = find_peaks(h_r2)
+peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
+
+results_half = peak_widths(h_r2, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(h_r2, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+print("12.6µmhorizontalr2")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("12.6µmhorizontalfullr2")
+print(max(results_full_plot[0]))
+print(" ")
+
+
+ax2.plot(x_new, h_r2)
+ax2.plot(peaks_h, h_r2[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\12.6µm_horizontal.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r2))
+horizontal_peaks_position.append(x_new[np.argmax(h_r2)])
+master_data_horizontal["12.6µm"] = h_r2
+
+#plot verticle
+ax2 = plt.axes()
+tck = interpolate.splrep(yr2, df_r2_ver.tolist(), s=2, k=4) 
+x_new = np.linspace(min(yr2), max(yr2), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+v_r2 = y_fit - min(y_fit)
+peaks, _ = find_peaks(v_r2)
+peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
+
+results_half = peak_widths(v_r2, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(v_r2, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+print("12.6µmverticler2")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("12.6µmverticlefullr2")
+print(max(results_full_plot[0]))
+print(" ")
+
+
+
+ax2.plot(x_new, v_r2)
+ax2.plot(peaks_v, v_r2[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("y-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\12.6µm_verticle.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r2))
+verticle_peaks_position.append(x_new[np.argmax(v_r2)])
+master_data_verticle["12.6µm"] = v_r2
+
+df_r3 = df.iloc[13:37, 200:234]
+df_r3_hor = df_r3.iloc[11,:]
+df_r3_ver = df_r3.iloc[:, 20]
+xr3 = np.linspace(0, 990, num=34)
+xr3 = xr3/20
+yr3 = np.linspace(0, 690, num=24)
+yr3 = yr3/20
+colorbarmax = 5000
+colorbartick = 5
+
+Xr3,Yr3 = np.meshgrid(xr3,yr3)
+df_r3 = df_r3.to_numpy()
+fig = plt.figure(figsize=(8, 4))
+ax = plt.axes()
+cp=ax.contourf(Xr3,Yr3,df_r3, 200, zdir='z', offset=-100, cmap='hot')
+clb=fig.colorbar(cp, ticks=(np.arange(0, colorbarmax, 200)).tolist())
+clb.ax.set_title('Photon/s', fontweight="bold")
+for l in clb.ax.yaxis.get_ticklabels():
+    l.set_weight("bold")
+    l.set_fontsize(12)
+ax.set_xlabel('x-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+ax.set_ylabel('y-position (µm)', fontsize=13, fontweight="bold", labelpad=1)
+
+
+ax.xaxis.label.set_fontsize(13)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(13)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+ax.set_xticklabels(ax.get_xticks(), weight='bold')
+ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\6.6µm_2D.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+
+#plot horizontal
+ax2 = plt.axes()
+tck = interpolate.splrep(xr3, df_r3_hor.tolist(), s=2, k=4) 
+x_new = np.linspace(min(xr3), max(xr3), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+h_r3 = y_fit - min(y_fit)
+peaks, _ = find_peaks(h_r3)
+peaks_h = x_new[peaks]
+horizontal_peaks.append(peaks_h)
+
+results_half = peak_widths(h_r3, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(h_r3, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+print("6.6µmhorizontalr3")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("6.6µmhorizontalfullr3")
+print(max(results_full_plot[0]))
+print(" ")
+
+
+ax2.plot(x_new, h_r3)
+ax2.plot(peaks_h, h_r3[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\6.6µm_horizontal.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r3))
+horizontal_peaks_position.append(x_new[np.argmax(h_r3)])
+master_data_horizontal["6.6µm"] = h_r3
+
+
+#plot vertical
+ax2 = plt.axes()
+tck = interpolate.splrep(yr3, df_r3_ver.tolist(), s=2, k=4) 
+x_new = np.linspace(min(yr3), max(yr3), 1000)
+y_fit = interpolate.BSpline(*tck)(x_new)
+v_r3 = y_fit - min(y_fit)
+peaks, _ = find_peaks(v_r3)
+peaks_v = x_new[peaks]
+verticle_peaks.append(peaks_v)
+
+results_half = peak_widths(v_r3, peaks, rel_height=0.5)
+width = results_half[0]
+width = [i*(x_new[1] - x_new[0]) for i in width]
+width = np.array(width)
+height = results_half[1]
+x_min = results_half[2]
+x_min = [i*(x_new[1] - x_new[0]) for i in x_min]
+x_min = np.array(x_min)
+x_max = results_half[3]
+x_max = [i*(x_new[1] - x_new[0]) for i in x_max]
+x_max = np.array(x_max)
+results_half_plot = (width, height, x_min, x_max)
+
+results_full = peak_widths(v_r3, peaks, rel_height=1)
+width_f = results_full[0]
+width_f = [i*(x_new[1] - x_new[0]) for i in width_f]
+width_f = np.array(width_f)
+height_f = results_full[1]
+x_min_f = results_full[2]
+x_min_f = [i*(x_new[1] - x_new[0]) for i in x_min_f]
+x_min_f = np.array(x_min_f)
+x_max_f = results_full[3]
+x_max_f = [i*(x_new[1] - x_new[0]) for i in x_max_f]
+x_max_f = np.array(x_max_f)
+results_full_plot = (width_f, height_f, x_min_f, x_max_f)
+
+
+print("6.6µmverticler3")
+print(max(results_half_plot[0]))
+print(" ")
+
+print("6.6µmverticlefullr3")
+print(max(results_full_plot[0]))
+print(" ")
+
+
+ax2.plot(x_new, v_r3)
+ax2.plot(peaks_v, v_r3[peaks], "o")
+ax2.hlines(*results_half_plot[1:], color="C2")
+ax2.hlines(*results_full_plot[1:], color="C3")
+
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("y-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\6.6µm_verticle.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r3))
+verticle_peaks_position.append(x_new[np.argmax(v_r3)])
+master_data_verticle["6.6µm"] = v_r3
+
+hor = np.linspace(min(xr1), max(xr1), 1000)
+
+ax2 = plt.axes()
+for column in master_data_horizontal.columns:
+    ax2.plot(hor, master_data_horizontal[column])
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["24.6µm", "12.6µm", "6.6µm"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\grating_length_horizontal_compile.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+ver = np.linspace(min(yr1), max(yr1), 1000)
+
+ax2 = plt.axes()
+for column in master_data_verticle.columns:
+    ax2.plot(ver, master_data_verticle[column])
+ax2.tick_params(which='major', width=2.00)
+ax2.tick_params(which='minor', width=2.00)
+ax2.xaxis.label.set_fontsize(13)
+ax2.xaxis.label.set_weight("bold")
+ax2.yaxis.label.set_fontsize(13)
+ax2.yaxis.label.set_weight("bold")
+ax2.tick_params(axis='both', which='major', labelsize=13)
+ax2.set_yticklabels(ax2.get_yticks(), weight='bold')
+ax2.set_xticklabels(ax2.get_xticks(), weight='bold')
+ax2.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+ax2.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines['bottom'].set_linewidth(2)
+ax2.spines['left'].set_linewidth(2)
+plt.xlabel("x-position (µm)")
+plt.ylabel("Photon/s")
+plt.legend(["24.6µm", "12.6µm", "6.6µm"], prop={'weight': 'bold'})
+plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\grating_length_verticle_compile.png", dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
