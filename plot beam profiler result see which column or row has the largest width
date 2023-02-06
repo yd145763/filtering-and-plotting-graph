@@ -8,10 +8,10 @@ import statistics
 
 
 
-df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius2 4x mag upper 50mA laser_0001.ascii.csv",header=None, sep=",")
+df = pd.read_csv(r"different waveguide length 50 mA 4x mag lower optimized position fixed height_0001.ascii.csv",header=None, sep=",")
   
 df=df.dropna(axis=1)
-df_r = df.iloc[14:38, 268:302]
+df_r = df.iloc[13:37, 200:234]
 
 H = np.arange(0,24,1)
 V = np.arange(0,34,1)
@@ -47,7 +47,7 @@ for h in H:
 
 
     
-    if len(x[peaks]) <=1 or 3*(second_highest(x[peaks])) < max(x[peaks]):
+    if len(x[peaks]) <=1 or 2*(second_highest(x[peaks])) < max(x[peaks]):
         horizontal_data[str(h)] = x
         
         
@@ -98,7 +98,7 @@ for v in V:
     mean_full, std_dev_full, mse_full = calculate_statistics(results_full[0])
 
     
-    if len(x[peaks]) <=1 or 3*(second_highest(x[peaks])) < max(x[peaks]):
+    if len(x[peaks]) <=1 or 2*(second_highest(x[peaks])) < max(x[peaks]):
         verticle_data[str(v)] = x
     
 
