@@ -14,7 +14,16 @@ from scipy.signal import chirp, find_peaks, peak_widths
 
 master_data_verticle = pd.DataFrame([])
 master_data_horizontal = pd.DataFrame([])
-
+full_width_horizontal = []
+full_width_verticle = []
+half_width_horizontal = []
+half_width_verticle = []
+verticle_peaks = []
+horizontal_peaks = []
+horizontal_peaks_position = []
+verticle_peaks_position = []
+horizontal_width_1000 = []
+verticle_width_1000 = []
 
 df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius1 4x mag lower 50mA laser_0001.ascii.csv",header=None, sep=",")
     
@@ -131,7 +140,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr1, df_r1_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr1), max(xr1), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r1 = y_fit - min(y_fit)
+h_r1 = y_fit 
 peaks, _ = find_peaks(h_r1)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -173,11 +182,19 @@ print("30µmhorizontalfullr1")
 print(max(results_full_plot[0]))
 print(" ")
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r1 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r1)
 ax2.plot(peaks_h, h_r1[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
-
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
 
@@ -195,18 +212,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r1))
+horizontal_peaks_position.append(x_new[np.argmax(h_r1)])
+master_data_horizontal["80_20"] = h_r1
 
 #plot verticle
 ax2 = plt.axes()
 tck = interpolate.splrep(yr1, df_r1_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr1), max(yr1), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r1 = y_fit - min(y_fit)
+v_r1 = y_fit 
 peaks, _ = find_peaks(v_r1)
 peaks_v = x_new[peaks]
 verticle_peaks.append(peaks_v)
@@ -249,10 +271,19 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r1 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r1)
 ax2.plot(peaks_v, v_r1[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -271,14 +302,19 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\30µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r1))
+verticle_peaks_position.append(x_new[np.argmax(v_r1)])
+master_data_verticle["80_20"] = v_r1
 
 df_r2 = df.iloc[85:109, 261:295]
-df_r2_hor = df_r2.iloc[14,:]
+df_r2_hor = df_r2.iloc[12,:]
 df_r2_ver = df_r2.iloc[:, 16]
 xr2 = np.linspace(0, 990, num=34)
 xr2 = xr2/20
@@ -320,7 +356,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr2, df_r2_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr2), max(xr2), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r2 = y_fit - min(y_fit)
+h_r2 = y_fit 
 peaks, _ = find_peaks(h_r2)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -362,10 +398,19 @@ print(" ")
 horizontal_half.append(max(results_half_plot[0]))
 horizontal_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r2 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r2)
 ax2.plot(peaks_h, h_r2[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -384,18 +429,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r2))
+horizontal_peaks_position.append(x_new[np.argmax(h_r2)])
+master_data_horizontal["60_40"] = h_r2
 
 #plot verticle
 ax2 = plt.axes()
 tck = interpolate.splrep(yr2, df_r2_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr2), max(yr2), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r2 = y_fit - min(y_fit)
+v_r2 = y_fit 
 peaks, _ = find_peaks(v_r2)
 peaks_v = x_new[peaks]
 verticle_peaks.append(peaks_v)
@@ -438,10 +488,19 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r2 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r2)
 ax2.plot(peaks_v, v_r2[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -460,14 +519,19 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\20µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r2))
+verticle_peaks_position.append(x_new[np.argmax(v_r2)])
+master_data_verticle["60_40"] = v_r2
 
 df_r3 = df.iloc[14:38, 263:297]
-df_r3_hor = df_r3.iloc[10,:]
+df_r3_hor = df_r3.iloc[12,:]
 df_r3_ver = df_r3.iloc[:, 18]
 xr3 = np.linspace(0, 990, num=34)
 xr3 = xr3/20
@@ -509,7 +573,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr3, df_r3_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr3), max(xr3), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r3 = y_fit - min(y_fit)
+h_r3 = y_fit 
 peaks, _ = find_peaks(h_r3)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -551,10 +615,19 @@ print(" ")
 horizontal_half.append(max(results_half_plot[0]))
 horizontal_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r3 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r3)
 ax2.plot(peaks_h, h_r3[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -573,18 +646,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r3))
+horizontal_peaks_position.append(x_new[np.argmax(h_r3)])
+master_data_horizontal["50_50"] = h_r3
 
 #plot vertical
 ax2 = plt.axes()
 tck = interpolate.splrep(yr3, df_r3_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr3), max(yr3), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r3 = y_fit - min(y_fit)
+v_r3 = y_fit 
 peaks, _ = find_peaks(v_r3)
 peaks_v = x_new[peaks]
 verticle_peaks.append(peaks_v)
@@ -627,10 +705,19 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r3 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r3)
 ax2.plot(peaks_v, v_r3[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -649,11 +736,16 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\15µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r3))
+verticle_peaks_position.append(x_new[np.argmax(v_r3)])
+master_data_verticle["50_50"] = v_r3
 
 
 df = pd.read_csv(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\different radius2 4x mag upper 50mA laser_0001.ascii.csv",header=None, sep=",")
@@ -764,7 +856,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr4, df_r4_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr4), max(xr4), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r4 = y_fit - min(y_fit)
+h_r4 = y_fit 
 peaks, _ = find_peaks(h_r4)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -807,10 +899,20 @@ print(" ")
 horizontal_half.append(max(results_half_plot[0]))
 horizontal_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r4 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r4)
 ax2.plot(peaks_h, h_r4[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
+
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -829,18 +931,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r4))
+horizontal_peaks_position.append(x_new[np.argmax(h_r4)])
+master_data_horizontal["40_60"] = h_r4
 
 #plot verticle
 ax2 = plt.axes()
 tck = interpolate.splrep(yr4, df_r4_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr4), max(yr4), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r4 = y_fit - min(y_fit)
+v_r4 = y_fit 
 
 
 peaks, _ = find_peaks(v_r4)
@@ -885,10 +992,19 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r4 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r4)
 ax2.plot(peaks_v, v_r4[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -907,11 +1023,16 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\60µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r4))
+verticle_peaks_position.append(x_new[np.argmax(v_r4)])
+master_data_verticle["40_60"] = v_r4
 
 df_r5 = df.iloc[85:109, 266:300]
 df_r5_hor = df_r5.iloc[11,:]
@@ -956,7 +1077,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr5, df_r5_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr5), max(xr5), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r5 = y_fit - min(y_fit)
+h_r5 = y_fit 
 peaks, _ = find_peaks(h_r5)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -999,10 +1120,19 @@ print(" ")
 horizontal_half.append(max(results_half_plot[0]))
 horizontal_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r5 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r5)
 ax2.plot(peaks_h, h_r5[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -1021,18 +1151,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r5))
+horizontal_peaks_position.append(x_new[np.argmax(h_r5)])
+master_data_horizontal["20_80"] = h_r5
 
 #plot verticle
 ax2 = plt.axes()
 tck = interpolate.splrep(yr5, df_r5_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr5), max(yr5), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r5 = y_fit - min(y_fit)
+v_r5 = y_fit 
 peaks, _ = find_peaks(v_r5)
 peaks_v = x_new[peaks]
 verticle_peaks.append(peaks_v)
@@ -1075,10 +1210,19 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r5 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r5)
 ax2.plot(peaks_v, v_r5[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -1097,14 +1241,19 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\50µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r5))
+verticle_peaks_position.append(x_new[np.argmax(v_r5)])
+master_data_verticle["20_80"] = v_r5
 
 df_r6 = df.iloc[14:38, 268:302]
-df_r6_hor = df_r6.iloc[15,:]
+df_r6_hor = df_r6.iloc[12,:]
 df_r6_ver = df_r6.iloc[:, 18]
 xr6 = np.linspace(0, 990, num=34)
 xr6 = xr6/20
@@ -1146,7 +1295,7 @@ ax2 = plt.axes()
 tck = interpolate.splrep(xr6, df_r6_hor.tolist(), s=2, k=4) 
 x_new = np.linspace(min(xr6), max(xr6), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-h_r6 = y_fit - min(y_fit)
+h_r6 = y_fit 
 peaks, _ = find_peaks(h_r6)
 peaks_h = x_new[peaks]
 horizontal_peaks.append(peaks_h)
@@ -1189,10 +1338,19 @@ print(" ")
 horizontal_half.append(max(results_half_plot[0]))
 horizontal_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(h_r6 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+horizontal_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, h_r6)
 ax2.plot(peaks_h, h_r6[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -1211,18 +1369,23 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("x-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40µm_horizontal.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
 
+full_width_horizontal.append(max(results_full_plot[0]))
+half_width_horizontal.append(max(results_half_plot[0]))
+horizontal_peaks.append(max(h_r6))
+horizontal_peaks_position.append(x_new[np.argmax(h_r6)])
+master_data_horizontal["100"] = h_r6
 
 #plot vertical
 ax2 = plt.axes()
 tck = interpolate.splrep(yr6, df_r6_ver.tolist(), s=2, k=4) 
 x_new = np.linspace(min(yr6), max(yr6), 1000)
 y_fit = interpolate.BSpline(*tck)(x_new)
-v_r6 = y_fit - min(y_fit)
+v_r6 = y_fit 
 peaks, _ = find_peaks(v_r6)
 peaks_v = x_new[peaks]
 verticle_peaks.append(peaks_v)
@@ -1265,10 +1428,20 @@ print(" ")
 verticle_half.append(max(results_half_plot[0]))
 verticle_full.append(max(results_full_plot[0]))
 
+#Determine the cross-section at y = y_line
+y_line = 1000
+delta = 50
+x_close = x_new[np.where(np.abs(v_r6 - y_line) < delta)]
+peak_width = np.max(x_close) - np.min(x_close)
+verticle_width_1000.append(peak_width)
+
+
 ax2.plot(x_new, v_r6)
 ax2.plot(peaks_v, v_r6[peaks], "o")
 ax2.hlines(*results_half_plot[1:], color="C2")
 ax2.hlines(*results_full_plot[1:], color="C3")
+ax2.hlines(y = y_line, xmin = np.min(x_close), xmax = np.max(x_close), color = "C4")
+
 
 ax2.tick_params(which='major', width=2.00)
 ax2.tick_params(which='minor', width=2.00)
@@ -1287,10 +1460,17 @@ ax2.spines['bottom'].set_linewidth(2)
 ax2.spines['left'].set_linewidth(2)
 plt.xlabel("y-position (µm)")
 plt.ylabel("Photon/s")
-plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width"], prop={'weight': 'bold'})
+plt.legend(["Photon/s", "Peaks", "FWHM", "Full Width", "1000 cnt/s"], prop={'weight': 'bold'})
 plt.savefig(r"C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\40µm_verticle.png", dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
+
+full_width_verticle.append(max(results_full_plot[0]))
+half_width_verticle.append(max(results_half_plot[0]))
+verticle_peaks.append(max(v_r6))
+verticle_peaks_position.append(x_new[np.argmax(v_r6)])
+master_data_verticle["100"] = v_r6
+
 
 xr1_fit = np.linspace(min(xr1), max(xr1), 1000)
 xr2_fit = np.linspace(min(xr2), max(xr2), 1000)
@@ -1393,3 +1573,35 @@ master_data_verticle.to_excel(r'C:\Users\limyu\Google Drive\focusing grating\2D 
 master_data_horizontal.to_excel(r'C:\Users\limyu\Google Drive\focusing grating\2D grating GDS\grating type 4 branchs\master_data_horizontal.xlsx', index=False)
 peak_height_horizontal = [max(h_r1), max(h_r2), max(h_r3), max(h_r4), max(h_r5), max(h_r6) ]
 peak_height_verticle = [max(v_r1), max(v_r2), max(v_r3), max(v_r4), max(v_r5), max(v_r6) ]
+
+print("full_width_horizontal")
+print(full_width_horizontal)
+print(" ")
+print("full_width_verticle")
+print(full_width_verticle)
+print(" ")
+print("half_width_horizontal")
+print(half_width_horizontal)
+print(" ")
+print("half_width_verticle")
+print(half_width_verticle)
+print(" ")
+print("horizontal_peaks_position")
+print(horizontal_peaks_position)
+print(" ")
+print("verticle_peaks_position")
+print(verticle_peaks_position)
+print(" ")
+print("peak_height_horizontal")
+print(peak_height_horizontal)
+print(" ")
+print("peak_height_verticle")
+print(peak_height_verticle)
+print(" ")
+print("horizontal_width_1000")
+print(horizontal_width_1000 )
+print(" ")
+print("verticle_width_1000")
+print(verticle_width_1000)
+print(" ")
+
